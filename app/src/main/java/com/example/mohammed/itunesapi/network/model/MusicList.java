@@ -20,7 +20,7 @@ public class MusicList implements RealmModel {
     @Expose
     private List<Result> results = null;
 
-    public MusicList(PopAdapter popAdapter) {
+    public MusicList() {
     }
 
     public Integer getResultCount() {

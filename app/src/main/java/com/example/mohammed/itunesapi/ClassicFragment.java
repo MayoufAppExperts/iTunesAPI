@@ -14,34 +14,45 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.mohammed.itunesapi.network.ReqClass;
 import com.example.mohammed.itunesapi.network.model.MusicList;
 import com.example.mohammed.itunesapi.network.model.Result;
 import com.example.mohammed.itunesapi.network.service.OnItemClickListener;
-import com.example.mohammed.itunesapi.ui.classicList.ClassicListPresenter;
+//import com.example.mohammed.itunesapi.ui.classicList.ClassicListPresenter;
+import com.example.mohammed.itunesapi.ui.ClassicViewModel;
 import com.example.mohammed.itunesapi.ui.classicList.iClassicListMvpView;
 import com.example.mohammed.itunesapi.ui.utils.rx.AppSchedulerProvider;
 
 import java.io.IOException;
 
 import io.reactivex.disposables.CompositeDisposable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by Mohammed on 01/10/2017.
  */
 
-public class ClassicFragment extends Fragment implements iClassicListMvpView {
+public class ClassicFragment extends Fragment {
 
-    private ClassicListPresenter<iClassicListMvpView> iClassicListMvpViewClassicListPresenter;
+    // private ClassicListPresenter<iClassicListMvpView> iClassicListMvpViewClassicListPresenter;
     public RecyclerView recyclerView;
     SwipeRefreshLayout mySwipeRefreshLayout;
+    private Subscription subscription = new CompositeSubscription();
+    private ClassicViewModel classicViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.home_fragment,  container, false);
+        return inflater.inflate(R.layout.home_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+
+        classicViewModel = new ClassicViewModel(new ReqClass(),
+                AndroidSchedulers.mainThread());
 
         presenter();
         initaliseRecyclerView(view);
@@ -58,13 +69,55 @@ public class ClassicFragment extends Fragment implements iClassicListMvpView {
     }
 
     private void presenter() {
-        iClassicListMvpViewClassicListPresenter = new ClassicListPresenter<>(
-                new AppDataManager(),
-                new AppSchedulerProvider(),
-                new CompositeDisposable());
 
-        iClassicListMvpViewClassicListPresenter.onAttach(this);
-        iClassicListMvpViewClassicListPresenter.onViewPrepared();
+        subscription = classicViewModel.useCaseClassicList()
+                .subscribe(new Observer<MusicList>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+
+                    }
+
+                    @Override
+                    public void onNext(MusicList musicList) {
+
+
+                        recyclerView.setAdapter(new PopAdapter(musicList.getResults(), R.layout.list_item, getActivity().getApplicationContext(), new OnItemClickListener() {
+                            @SuppressWarnings("deprecation")
+                            @Override
+                            public void onItemClick(Result result) {
+                                Toast.makeText(getActivity().getApplicationContext(), result.getArtistName().toString(), Toast.LENGTH_SHORT).show();
+                                if (((MainActivity) getActivity()).urlPlaying == result.getPreviewUrl()) {
+                                    ((MainActivity) getActivity()).mediaPlayer.reset();
+                                } else {
+                                    ((MainActivity) getActivity()).urlPlaying = result.getPreviewUrl();
+
+                                    try {
+                                        ((MainActivity) getActivity()).mediaPlayer.reset();
+                                        ((MainActivity) getActivity()).mediaPlayer.setDataSource(result.getPreviewUrl());
+                                        ((MainActivity) getActivity()).mediaPlayer.prepare();
+                                        ((MainActivity) getActivity()).mediaPlayer.start();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }));
+                    }
+                });
+
+//        iClassicListMvpViewClassicListPresenter = new ClassicListPresenter<>(
+//                new AppDataManager(),
+//                new AppSchedulerProvider(),
+//                new CompositeDisposable());
+//
+//        iClassicListMvpViewClassicListPresenter.onAttach(this);
+//        iClassicListMvpViewClassicListPresenter.onViewPrepared();
     }
 
     private void swipeRefresh(View view) {
@@ -85,35 +138,11 @@ public class ClassicFragment extends Fragment implements iClassicListMvpView {
                     }
                 });
     }
+}
 
-
-    @Override
+/*    @Override
     public void onFetchClassicCompleted(MusicList musicList) {
 
-        recyclerView.setAdapter(new PopAdapter(musicList.getResults(), R.layout.list_item, getActivity().getApplicationContext(), new OnItemClickListener() {
-            @SuppressWarnings("deprecation")
-            @Override
-            public void onItemClick(Result result) {
-                Toast.makeText(getActivity().getApplicationContext(), result.getArtistName().toString(), Toast.LENGTH_SHORT).show();
-                String URL = result.getPreviewUrl();
-                MediaPlayer mediaPlayer = new MediaPlayer();
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                try {
-                    mediaPlayer.setDataSource(URL);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-
-                    mediaPlayer.prepare(); // might take long! (for buffering, etc)
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                mediaPlayer.start();
-            }
-        }
-        ));
     }
 
     @Override
@@ -139,5 +168,4 @@ public class ClassicFragment extends Fragment implements iClassicListMvpView {
     @Override
     public boolean isNetworkConnected() {
         return false;
-    }
-}
+    }*/

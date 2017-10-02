@@ -1,5 +1,6 @@
 package com.example.mohammed.itunesapi;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -12,7 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.mohammed.itunesapi.network.RealmController;
+//import com.example.mohammed.itunesapi.network.RealmController;
 import com.example.mohammed.itunesapi.network.model.MusicList;
 import com.example.mohammed.itunesapi.network.model.Result;
 import com.example.mohammed.itunesapi.network.service.OnItemClickListener;
@@ -29,9 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
     FragmentManager fragmentManager;
     Toast toast;
-    Realm realm;
-    RealmController realmController;
-    MusicList musicList;
+    String urlPlaying = "";
+    MediaPlayer mediaPlayer = new MediaPlayer();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -77,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-
     }
 
     public void reactiveNetwork() {
@@ -88,16 +86,19 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Consumer<Connectivity>() {
                                @Override
                                public void accept(final Connectivity connectivity) {
-                                   toast.makeText(getApplicationContext(), connectivity.getType(), Toast.LENGTH_LONG).show();
+                                   Toast.makeText(getApplicationContext(), connectivity.getType(), Toast.LENGTH_LONG).show();
                                    Log.d("Connection", connectivity.toString());
                                }
                            },
                         new Consumer<Throwable>() {
                             @Override
                             public void accept(@io.reactivex.annotations.NonNull Throwable throwable) throws Exception {
-                                throwable.getMessage();
+                                Log.i("Error", throwable.getMessage());
                             }
                         });
-
     }
+    public MediaPlayer getMediaPlayer(){
+        return this.mediaPlayer;
+    }
+
 }

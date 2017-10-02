@@ -4,7 +4,8 @@ import com.example.mohammed.itunesapi.network.model.MusicList;
 import com.example.mohammed.itunesapi.network.service.ConnectionService;
 import com.example.mohammed.itunesapi.network.service.ReqInterface;
 
-import io.reactivex.Observable;
+import rx.Observable;
+
 
 /**
  * Created by Mohammed on 01/10/2017.

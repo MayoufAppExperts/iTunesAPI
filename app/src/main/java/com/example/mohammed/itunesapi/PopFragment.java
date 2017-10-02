@@ -1,7 +1,5 @@
 package com.example.mohammed.itunesapi;
 
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,48 +12,52 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.mohammed.itunesapi.network.RealmController;
+import com.example.mohammed.itunesapi.network.ReqClass;
 import com.example.mohammed.itunesapi.network.model.MusicList;
 import com.example.mohammed.itunesapi.network.model.Result;
 import com.example.mohammed.itunesapi.network.service.OnItemClickListener;
-import com.example.mohammed.itunesapi.ui.popList.PopListPresenter;
+import com.example.mohammed.itunesapi.ui.PopViewModel;
+//import com.example.mohammed.itunesapi.ui.popList.PopListPresenter;
 import com.example.mohammed.itunesapi.ui.popList.iPopListMvpView;
-import com.example.mohammed.itunesapi.ui.utils.rx.AppSchedulerProvider;
 
 import java.io.IOException;
 
-import io.reactivex.disposables.CompositeDisposable;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by Mohammed on 01/10/2017.
  */
 
-public class PopFragment extends Fragment implements iPopListMvpView {
+public class PopFragment extends Fragment {
+        //implements iPopListMvpView
 
 
-    private PopListPresenter<iPopListMvpView> iPopListMvpViewPopListPresenter;
+    //private PopListPresenter<iPopListMvpView> iPopListMvpViewPopListPresenter;
     public RecyclerView recyclerView;
     SwipeRefreshLayout mySwipeRefreshLayout;
-    Realm realm;
-    RealmController realmController;
-    MusicList musicList;
+    private Subscription subscriptions = new CompositeSubscription();
+    private PopViewModel popViewModel;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.home_fragment,  container, false);
+        return inflater.inflate(R.layout.home_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
+        popViewModel = new PopViewModel(new ReqClass(),
+                AndroidSchedulers.mainThread());
+
         presenter();
         initaliseRecyclerView(view);
         swipeRefresh(view);
-        realmSetup();
-        realmSave();
+
+
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -80,13 +82,58 @@ public class PopFragment extends Fragment implements iPopListMvpView {
     }
 
     private void presenter() {
-        iPopListMvpViewPopListPresenter = new PopListPresenter<>(
+
+
+        subscriptions = popViewModel.useCasePopList()
+                .subscribe(new Observer<MusicList>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+
+                    }
+
+                    @Override
+                    public void onNext(MusicList musicList) {
+
+                        recyclerView.setAdapter(new PopAdapter(musicList.getResults(), R.layout.list_item, getActivity().getApplicationContext(), new OnItemClickListener() {
+                            @SuppressWarnings("deprecation")
+                            @Override
+                            public void onItemClick(Result result) {
+                                Toast.makeText(getActivity().getApplicationContext(), result.getArtistName().toString(), Toast.LENGTH_SHORT).show();
+
+                                if (((MainActivity) getActivity()).urlPlaying == result.getPreviewUrl()) {
+                                    ((MainActivity) getActivity()).mediaPlayer.reset();
+                                } else {
+                                    ((MainActivity) getActivity()).urlPlaying = result.getPreviewUrl();
+
+                                    try {
+                                        ((MainActivity) getActivity()).mediaPlayer.reset();
+                                        ((MainActivity) getActivity()).mediaPlayer.setDataSource(result.getPreviewUrl());
+                                        ((MainActivity) getActivity()).mediaPlayer.prepare();
+                                        ((MainActivity) getActivity()).mediaPlayer.start();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }));
+
+
+                    }
+                });
+
+        /*iPopListMvpViewPopListPresenter = new PopListPresenter<>(
                 new AppDataManager(),
                 new AppSchedulerProvider(),
                 new CompositeDisposable());
 
         iPopListMvpViewPopListPresenter.onAttach(this);
-        iPopListMvpViewPopListPresenter.onViewPrepared();
+        iPopListMvpViewPopListPresenter.onViewPrepared();*/
 
     }
 
@@ -96,6 +143,7 @@ public class PopFragment extends Fragment implements iPopListMvpView {
         Log.i("RecyclerCheck", "has been initialised");
     }
 
+/*
     @Override
     public void onFetchPopCompleted(MusicList musicList) {
         recyclerView.setAdapter(new PopAdapter(musicList.getResults(), R.layout.list_item, getActivity().getApplicationContext(), new OnItemClickListener() {
@@ -103,25 +151,23 @@ public class PopFragment extends Fragment implements iPopListMvpView {
             @Override
             public void onItemClick(Result result) {
                 Toast.makeText(getActivity().getApplicationContext(), result.getArtistName().toString(), Toast.LENGTH_SHORT).show();
-                String URL = result.getPreviewUrl();
-                MediaPlayer mediaPlayer = new MediaPlayer();
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                try {
-                    mediaPlayer.setDataSource(URL);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
 
-                    mediaPlayer.prepare(); // might take long! (for buffering, etc)
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                if (((MainActivity) getActivity()).urlPlaying == result.getPreviewUrl()) {
+                    ((MainActivity) getActivity()).mediaPlayer.reset();
+                } else {
+                    ((MainActivity) getActivity()).urlPlaying = result.getPreviewUrl();
 
-                mediaPlayer.start();
+                    try {
+                        ((MainActivity) getActivity()).mediaPlayer.reset();
+                        ((MainActivity) getActivity()).mediaPlayer.setDataSource(result.getPreviewUrl());
+                        ((MainActivity) getActivity()).mediaPlayer.prepare();
+                        ((MainActivity) getActivity()).mediaPlayer.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        }
-        ));
+        }));
     }
 
     @Override
@@ -148,29 +194,6 @@ public class PopFragment extends Fragment implements iPopListMvpView {
     public boolean isNetworkConnected() {
         return false;
     }
+*/
 
-
-    public void realmSetup() {
-        Realm.init(getActivity().getApplicationContext());
-        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
-                .name(Realm.DEFAULT_REALM_NAME)
-                .schemaVersion(1)
-                .deleteRealmIfMigrationNeeded()
-                .build();
-
-        Realm.setDefaultConfiguration(realmConfiguration);
-    }
-
-    public void realmSave() {
-        realm = Realm.getDefaultInstance();
-        realmController = new RealmController(realm);
-        musicList = new MusicList(new PopAdapter(musicList.getResults(), R.layout.list_item, getActivity().getApplicationContext(), new OnItemClickListener() {
-            @Override
-            public void onItemClick(Result result) {
-                realmController.saveCustomer(musicList);
-
-            }
-        }));
-
-    }
 }

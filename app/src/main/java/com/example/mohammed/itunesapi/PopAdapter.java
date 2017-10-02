@@ -2,17 +2,23 @@ package com.example.mohammed.itunesapi;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+//import com.example.mohammed.itunesapi.network.RealmController;
+import com.example.mohammed.itunesapi.network.model.MusicList;
+//import com.example.mohammed.itunesapi.network.model.RealmDB;
 import com.example.mohammed.itunesapi.network.model.Result;
 import com.example.mohammed.itunesapi.network.service.OnItemClickListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import io.realm.Realm;
 
 
 /**
@@ -22,6 +28,9 @@ import java.util.List;
 public class PopAdapter extends RecyclerView.Adapter<PopAdapter.PopViewHolder>{
 
 
+    Realm realm;
+    //RealmController realmController;
+    //RealmDB musicRealm;
     List<Result> results;
     int list_item;
     Context applicationContext;
@@ -41,7 +50,7 @@ public class PopAdapter extends RecyclerView.Adapter<PopAdapter.PopViewHolder>{
     @Override
     public void onBindViewHolder(PopViewHolder holder, int position) {
 
-        holder.tvPrice.setText(results.get(position).getArtistName());
+        holder.tvArtist.setText(results.get(position).getArtistName());
         holder.tvCollection.setText(results.get(position).getCollectionName());
         holder.tvPrice.setText(results.get(position).getTrackPrice().toString());
 
@@ -52,11 +61,24 @@ public class PopAdapter extends RecyclerView.Adapter<PopAdapter.PopViewHolder>{
                 .into(holder.imgArt);
 
         holder.Bind(results.get(position), listener);
+
+//        for (int i=0; i<results.size(); i++){
+//
+//            musicRealm = new RealmDB(
+//                    results.get(position).getArtistName(),
+//                    results.get(position).getCollectionName(),
+//                    results.get(position).getTrackPrice().toString());
+//            realmController.saveMusic(musicRealm);
+//            Log.i("check", musicRealm.getResults().get(position).getArtistName());
+//        }
     }
 
     @Override
     public PopViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, null);
+
+//        realm = Realm.getDefaultInstance();
+//        realmController = new RealmController(realm);
         return new PopViewHolder(view);
     }
 
