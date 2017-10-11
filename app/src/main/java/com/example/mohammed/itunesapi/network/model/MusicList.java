@@ -3,11 +3,10 @@ package com.example.mohammed.itunesapi.network.model;
 /**
  * Created by Mohammed on 30/09/2017.
  */
-import java.util.List;
-
-import com.example.mohammed.itunesapi.PopAdapter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
 
 import io.realm.RealmModel;
 

@@ -3,14 +3,11 @@ package com.example.mohammed.itunesapi.network;
 import com.example.mohammed.itunesapi.network.model.API_Constants;
 import com.example.mohammed.itunesapi.network.model.MusicList;
 import com.example.mohammed.itunesapi.network.service.ReqInterface;
-import com.google.gson.Gson;
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
-import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 /**

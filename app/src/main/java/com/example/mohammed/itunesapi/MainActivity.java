@@ -9,27 +9,20 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
-//import com.example.mohammed.itunesapi.network.RealmController;
-import com.example.mohammed.itunesapi.network.model.MusicList;
-import com.example.mohammed.itunesapi.network.model.Result;
-import com.example.mohammed.itunesapi.network.service.OnItemClickListener;
 import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
+
+//import com.example.mohammed.itunesapi.network.RealmController;
 
 public class MainActivity extends AppCompatActivity {
 
     FragmentManager fragmentManager;
-    Toast toast;
     String urlPlaying = "";
     MediaPlayer mediaPlayer = new MediaPlayer();
 

@@ -1,10 +1,7 @@
 package com.example.mohammed.itunesapi;
 
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,14 +15,13 @@ import com.example.mohammed.itunesapi.network.ReqClass;
 import com.example.mohammed.itunesapi.network.model.MusicList;
 import com.example.mohammed.itunesapi.network.model.Result;
 import com.example.mohammed.itunesapi.network.service.OnItemClickListener;
-//import com.example.mohammed.itunesapi.ui.classicList.ClassicListPresenter;
 import com.example.mohammed.itunesapi.ui.ClassicViewModel;
-import com.example.mohammed.itunesapi.ui.classicList.iClassicListMvpView;
-import com.example.mohammed.itunesapi.ui.utils.rx.AppSchedulerProvider;
+import com.example.mohammed.itunesapi.ui.base.BaseFragment;
 
 import java.io.IOException;
 
-import io.reactivex.disposables.CompositeDisposable;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -35,12 +31,14 @@ import rx.subscriptions.CompositeSubscription;
  * Created by Mohammed on 01/10/2017.
  */
 
-public class ClassicFragment extends Fragment {
+public class ClassicFragment extends BaseFragment {
 
     // private ClassicListPresenter<iClassicListMvpView> iClassicListMvpViewClassicListPresenter;
-    public RecyclerView recyclerView;
+    @BindView(R.id.pop_recycler_view)
+    RecyclerView recyclerView;
+    @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout mySwipeRefreshLayout;
-    private Subscription subscription = new CompositeSubscription();
+    Subscription subscription = new CompositeSubscription();
     private ClassicViewModel classicViewModel;
 
     @Override
@@ -54,6 +52,7 @@ public class ClassicFragment extends Fragment {
         classicViewModel = new ClassicViewModel(new ReqClass(),
                 AndroidSchedulers.mainThread());
 
+        ButterKnife.bind(this, view);
         presenter();
         initaliseRecyclerView(view);
         swipeRefresh(view);
@@ -63,7 +62,7 @@ public class ClassicFragment extends Fragment {
 
     private void initaliseRecyclerView(View view) {
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.pop_recycler_view);
+        recyclerView = view.findViewById(R.id.pop_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         Log.i("RecyclerCheck", "has been initialised");
     }
@@ -88,7 +87,7 @@ public class ClassicFragment extends Fragment {
 
 
                         recyclerView.setAdapter(new PopAdapter(musicList.getResults(), R.layout.list_item, getActivity().getApplicationContext(), new OnItemClickListener() {
-                            @SuppressWarnings("deprecation")
+                            //@SuppressWarnings("deprecation")
                             @Override
                             public void onItemClick(Result result) {
                                 Toast.makeText(getActivity().getApplicationContext(), result.getArtistName().toString(), Toast.LENGTH_SHORT).show();
@@ -121,7 +120,7 @@ public class ClassicFragment extends Fragment {
     }
 
     private void swipeRefresh(View view) {
-        mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        mySwipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         mySwipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override

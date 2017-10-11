@@ -3,9 +3,6 @@ package com.example.mohammed.itunesapi;
 import android.app.Application;
 import android.content.Context;
 
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
-
 /**
  * Created by Mohammed on 01/10/2017.
  */

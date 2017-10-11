@@ -2,7 +2,6 @@ package com.example.mohammed.itunesapi;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,26 +16,29 @@ import com.example.mohammed.itunesapi.network.model.MusicList;
 import com.example.mohammed.itunesapi.network.model.Result;
 import com.example.mohammed.itunesapi.network.service.OnItemClickListener;
 import com.example.mohammed.itunesapi.ui.RockViewModel;
+import com.example.mohammed.itunesapi.ui.base.BaseFragment;
 
 import java.io.IOException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
-//import com.example.mohammed.itunesapi.ui.rockList.RockListPresenter;
-
 /**
  * Created by Mohammed on 01/10/2017.
  */
 
-public class RockFragment extends Fragment {
+public class RockFragment extends BaseFragment {
 
     //private RockListPresenter<iRockListMvpView> iRockListMvpViewRockListPresenter;
-    public RecyclerView recyclerView;
+    @BindView(R.id.pop_recycler_view)
+    RecyclerView recyclerView;
+    @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout mySwipeRefreshLayout;
-    private Subscription subscription = new CompositeSubscription();
+    Subscription subscription = new CompositeSubscription();
     private RockViewModel rockViewModel;
 
 
@@ -50,7 +52,7 @@ public class RockFragment extends Fragment {
         rockViewModel = new RockViewModel(new ReqClass(),
                 AndroidSchedulers.mainThread());
 
-
+        ButterKnife.bind(this, view);
         presenter();
         initaliseRecyclerView(view);
         swipeRefresh(view);
@@ -59,7 +61,7 @@ public class RockFragment extends Fragment {
 
     private void swipeRefresh(View view) {
 
-        mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        //mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         mySwipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
@@ -131,7 +133,7 @@ public class RockFragment extends Fragment {
     }
 
     private void initaliseRecyclerView(View view) {
-        recyclerView = (RecyclerView) view.findViewById(R.id.pop_recycler_view);
+        //recyclerView = (RecyclerView) view.findViewById(R.id.pop_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         Log.i("RecyclerCheck", "has been initialised");
     }
